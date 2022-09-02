@@ -8,8 +8,8 @@
 
     <Public_ip> ansible_ssh_private_key_file=<"private_key_ssh_file_location"> ansible_user=<"username of the mechine">
     
-    3.138.186.35 ansible_ssh_private_key_file=/mnt/c/Users/ajay/.ssh/ansible.pem ansible_user=ubuntu
-    18.218.191.241 ansible_ssh_private_key_file=/mnt/c/Users/ajay/.ssh/ansible.pem ansible_user=ubuntu
+    3.138.186.35 ansible_ssh_private_key_file=/mnt/c/Users/<username>/.ssh/ansible.pem ansible_user=ubuntu
+    18.218.191.241 ansible_ssh_private_key_file=/mnt/c/Users/<username>/.ssh/ansible.pem ansible_user=ubuntu
 
 ## To check weather the ansible is able to connect to the server mechines or not
     ansible <group or all or single host> -i <host_file_location> -m <module_name>
@@ -27,7 +27,7 @@
     <server_50_ip>
 
     [aws:vars]
-    ansible_ssh_private_key_file=/mnt/c/Users/ajay/.ssh/ansible.pem
+    ansible_ssh_private_key_file=/mnt/c/Users/<username>/.ssh/ansible.pem
     ansible_user=ubuntu
 
     to configure the aws group mechines file 
