@@ -1,0 +1,53 @@
+---
+- name: Install node and npm
+  hosts: 18.219.207.131
+  tasks:
+  - name: update the apt and cache
+    become: true
+    # become_user: root
+    apt: update_cache=true force_apt_get=yes cache_valid_time=3600
+
+  - name: install Node and npm
+    become: true
+    apt:
+      pkg:
+        - nodejs
+        - npm
+
+- name: Deploye Nodejs app
+  hosts: 18.219.207.131
+  # gather_facts: false
+  tasks:
+  # - name: changing the fle permission
+  #   become: true
+  #   file: 
+  #     path: /home/ajay/collection-4-6357282730435028882.wt
+  #     mode: o+r
+  # - name: copy nodejs file to a server
+  #   become: true
+  #   # become_user: root
+  #   copy:
+  #     src: ~/collection-4-6357282730435028882.wt
+  #     dest: /root/
+  #     remote_src: no
+  - name: unpack the nodejs file from tar
+    become: true
+    unarchive:
+      src: /home/ajay/ansible/Node-app/simple-nodejs-master/nodejs-app-1.0.0.tgz
+      dest: /root/
+  - name: installing the dependencies
+    become: true
+    npm:
+      path: /root/package
+  - name: start the nodejs application
+    become: true
+    command: 
+      chdir: /root/package/app
+      cmd: node server
+    async: 1000
+    poll: 0
+  - name: ensure app is runnig 
+    become: true
+    shell: ps aux | grep node
+    register: app_status
+  - debug: msg={{app_status.stdout_lines}}

@@ -1,0 +1,7 @@
+[webserver]
+18.219.207.131
+18.219.217.7
+
+[webserver:vars]
+ansible_private_key_file=~/.ssh/ansible.pem
+ansible_user=ubuntu

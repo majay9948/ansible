@@ -1,0 +1,101 @@
+---
+- name: Install java and net-tools
+  hosts: azure
+  tasks:  
+  - name: update apt and cache
+    become: true
+    apt: update_cache=true force_apt_get=yes cache_valid_time=3600
+  - name: install java 8
+    become: true
+    apt: name=openjdk-8-jre-headless
+  - name: install net-tools
+    become: true
+    apt: name=net-tools
+
+- name: Download and  unpack nexus installer
+  hosts: azure
+  become: true
+  tasks:
+    - name: download  nexus
+      get_url:
+        url: https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+        dest: /opt
+      register: download_result
+    - name: Find nexus folder
+      find:
+        paths: /opt
+        pattern: "nexus-*"
+        file_type: directory
+      register: find_result
+    - debug: msg={{find_result}}
+    - name: find nexus folder is already exists
+      stat:
+        path: /opt/nexus
+      register: stat_result
+    - name: untar the nexus installer
+      unarchive:
+        src: "{{download_result.dest}}"
+        dest: /opt/
+        remote_src: yes
+      when: not stat_result.stat.exists
+    - debug: msg={{stat_result.stat.exists}}
+    - name: Rename nexus folder
+      shell: mv {{find_result.files[0].path}} /opt/nexus
+      when: not stat_result.stat.exists
+- name: Create nexus user to own nexus folders
+  hosts: azure
+  become: true
+  tasks:
+    - name: ensure group nexus exists
+      group:
+        name: nexus
+        state: present
+    - name: create nexus user
+      user:
+        name: nexus
+        group: nexus
+    - name: make nexus user owner of nexus folder
+      file:
+        path: /opt/nexus
+        state: directory
+        owner: nexus
+        group: nexus
+        recurse: yes
+    - name: make nexus user owner of sonatype-work folder
+      file:
+        path: /opt/sonatype-work
+        state: directory
+        owner: nexus
+        group: nexus
+        recurse: yes 
+- name: start nexus with nexus
+  hosts: azure
+  become: true
+  # become_user: nexus
+  tasks:
+    - name: set run_as_user nexus
+      lineinfile:
+        path: /opt/nexus/bin/nexus.rc
+        regexp: '^#run_as_user=""'
+        line: run_as_user="nexus"
+
+    - name: start nexus
+      become: true
+      command: /opt/nexus/bin/nexus start
+- name: verify nexus is runnig  
+  hosts: azure
+  tasks:
+    - name: check with ps
+      shell: ps aux | grep nexus
+      register: nexus_status
+    - debug: msg={{nexus_status.stdout_lines}}
+    - name: wait to open the port
+      pause:
+        minutes: 1
+    - name: check netstat
+      shell: netstat -plnt
+      register: nexus_netstat_status
+    - debug: msg={{nexus_netstat_status.stdout_lines}}
+
+
+    

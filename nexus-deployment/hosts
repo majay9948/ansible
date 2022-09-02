@@ -1,0 +1,7 @@
+[azure]
+20.197.40.101
+
+
+[azure:vars]
+ansible_private_key_file=~/.ssh/azure_ansible_key.pem
+ansible_user=azureuser

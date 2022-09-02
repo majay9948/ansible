@@ -1,0 +1,12 @@
+version: '3'
+service:
+  mongodb:
+    image: mongo
+    ports:
+    - 27107:27107
+    volumes:
+    - db-data: /mnt/c/Users/AJAY/Desktop/DevopsBootcamp/ansible/Node-app/data
+
+volumes:
+  db-data:
+  driver: local

@@ -1,0 +1,35 @@
+---
+- name: Configure nginx web server
+  hosts: webserver
+  
+  tasks:
+  # install the nginx server on aws instance 
+  
+  - name: install nginx server
+    become: true
+    become_user: root
+    apt:
+      name: nginx
+      state: latest
+
+  - name: start the nginx server
+    become: true
+    become_user: root
+    service:
+      name: nginx
+      state: started
+  # uninstall the nginx server from aws instances
+  
+  - name: uninstall nginx server
+    become: true
+    become_user: root
+    apt:
+      name: nginx
+      state: absent
+
+  - name: stop the nginx server
+    become: true
+    become_user: root
+    service:
+      name: nginx
+      state: stopped
